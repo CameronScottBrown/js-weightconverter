@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <style type="text/css">
+        body {
+            margin-top: 70px;
+            background-color: #333;
+            color: #fff;
+        }
+        .card, .card-block {
+            padding: .5em;
+            
+        }
+        /*
+        
+        Styled these cards, then realized I could use 
+        bootstrap bg- classes (bg-primary, bg-success, bg-danger)
+        
+        
+        #gramsCard{
+            background-color: red;
+        }
+        
+        #kilogramsCard{
+            background-color: deepskyblue;
+        }
+        
+        #ouncesCard {
+            background-color: forestgreen;
+        }
+        */
+    </style>
+    <title>Weight Converter</title>
+    
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <h1 class="display-4 text-center mb-3">Weight Converter</h1>
+                <form>
+                    <div class="form-group">
+                        <input 
+                        id="lbsInput"
+                        type="number" 
+                        class="form-control form-control-lg" 
+                        placeholder="Enter pounds...">
+                    </div>
+                </form>
+                <div id="output">
+                   
+                    <div class="card bg-primary mb-2" id="gramsCard">
+                        <div class="card-block">
+                            <h4>Grams:</h4>
+                            <div id="gramsOutput"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-success mb-2" id="kilogramsCard">
+                        <div class="card-block">
+                            <h4>Kilograms:</h4>
+                            <div id="kilogramsOutput"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-danger mb-2" id="ouncesCard">
+                        <div class="card-block">
+                            <h4>Ounces:</h4>
+                            <div id="ouncesOutput"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        //hide converted units until user inputs something
+        document.getElementById('output').style.visibility = 'hidden';
+        
+        
+        //add event listener
+        document.getElementById('lbsInput').addEventListener('input', function(e){
+            
+            //show unit conversions div
+            document.getElementById('output').style.visibility = 'visible';
+            
+            // define lbs as event target value
+            let lbs = e.target.value;
+            
+            // define units based on lbs
+            let grams = lbs * 453.59237;
+            let kilograms = grams / 1000;
+            let ounces = lbs * 16;
+            
+            // change innerHTML to respective units
+            document.getElementById('gramsOutput').innerHTML = grams;
+            document.getElementById('kilogramsOutput').innerHTML = kilograms;
+            document.getElementById('ouncesOutput').innerHTML = ounces;
+        });
+
+    </script>
+</body>
+</html>
