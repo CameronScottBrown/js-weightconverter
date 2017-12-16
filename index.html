@@ -6,101 +6,333 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <style type="text/css">
         body {
-            margin-top: 70px;
+            margin-top: 20px;
             background-color: #333;
             color: #fff;
         }
+        
         .card, .card-block {
             padding: .5em;
+        }
+        
+        .card {
+            width:100%;
+        }
+
+        .buttons {
+            text-align: center;
             
         }
         /*
-        
-        Styled these cards, then realized I could use 
-        bootstrap bg- classes (bg-primary, bg-success, bg-danger)
-        
-        
-        #gramsCard{
-            background-color: red;
-        }
-        
-        #kilogramsCard{
-            background-color: deepskyblue;
-        }
-        
-        #ouncesCard {
-            background-color: forestgreen;
-        }
+            this keeps the buttons from overlapping 
+            when the screen resizes
         */
+        @media (min-width:768px) {
+            .container {
+            max-width: 760px; !important
+            }
+        }
+        
+        span {
+            float: right;
+        }
+        
     </style>
+    
     <title>Weight Converter</title>
     
 </head>
-<body>
+<body onload="setPounds()">
     <div class="container">
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <h1 class="display-4 text-center mb-3">Weight Converter</h1>
-                <form>
+                <form id="myForm" onsubmit="event.preventDefault()">
+                   <div class= "buttons mb-4">
+                        <button type="button" 
+                               class="btn btn-warning" 
+                               id='lbsButton'>pounds</button>
+                        <button type="button" 
+                               class="btn btn-danger" 
+                               id='ouncesButton'>ounces</button>
+                        <button type="button" 
+                               class="btn btn-success" 
+                               id='kilogramsButton'>kilograms</button>
+                        <button type="button" 
+                               class="btn btn-primary" 
+                               id='gramsButton'>grams</button>
+                   </div>
+                   
                     <div class="form-group">
                         <input 
-                        id="lbsInput"
+                        id="genericInput"
                         type="number" 
                         class="form-control form-control-lg" 
                         placeholder="Enter pounds...">
                     </div>
                 </form>
                 <div id="output">
-                   
-                    <div class="card bg-primary mb-2" id="gramsCard">
+                    <div class="card bg-warning mb-2" id="lbsCard">
                         <div class="card-block">
-                            <h4>Grams:</h4>
-                            <div id="gramsOutput"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="card bg-success mb-2" id="kilogramsCard">
-                        <div class="card-block">
-                            <h4>Kilograms:</h4>
-                            <div id="kilogramsOutput"></div>
+                            <strong>Pounds:</strong>
+                            <span id="lbsOutput"></span>
                         </div>
                     </div>
                     
                     <div class="card bg-danger mb-2" id="ouncesCard">
                         <div class="card-block">
-                            <h4>Ounces:</h4>
-                            <div id="ouncesOutput"></div>
+                            <strong>Ounces:</strong>
+                            <span id="ouncesOutput"></span>
                         </div>
                     </div>
+                    
+                    <div class="card bg-success mb-2" id="kilogramsCard">
+                        <div class="card-block">
+                            <strong>Kilograms:</strong>
+                            <span id="kilogramsOutput"></span>
+                        </div>
+                    </div>
+                    <div class="card bg-primary mb-2" id="gramsCard">
+                        <div class="card-block">
+                            <strong>Grams:</strong>
+                            <span id="gramsOutput"></span>
+                        </div>
+                    </div>
+                    
                     
                 </div>
             </div>
         </div>
     </div>
     <script>
-        //hide converted units until user inputs something
-        document.getElementById('output').style.visibility = 'hidden';
+        
+        //hide converted unit cards until user inputs something
+        //document.getElementById('output').style.visibility = 'hidden';
+        
+        hideAndReset();
+        
+
+        /*     SET UP BUTTON LISTENERS
+         *  - set event listener for button inputs
+        */
+        document.getElementById('lbsButton').addEventListener('click', setPounds);
+        document.getElementById('gramsButton').addEventListener('click', setGrams);
+        document.getElementById('kilogramsButton').addEventListener('click', setKilograms);
+        document.getElementById('ouncesButton').addEventListener('click', setOunces);
+        
+      
+        /*  disableButton(buttonId) - takes button ID as parameter, sets the
+        *   button to 'disabled'
+        
+        function disableButton(buttonId){
+            let buttons = document.getElementsByClassName('button');
+            for(let i = 0; i < buttons.length; i++) {
+                if (buttons[i].getAttribute('id') === buttonId){
+                    buttons[i].disabled = true;
+                } else {
+                    buttons[i].disabled = false;
+                }
+                
+            }
+        }
+        */
+        
+        /*     hideOutput(cardId) - takes cardId parameter and 
+        *      loops through output cards, removing the target card
+        */ 
         
         
-        //add event listener
-        document.getElementById('lbsInput').addEventListener('input', function(e){
+        //temporary hide
+        /*
+        
+        function hideOutput(cardId){
+            let outputs = document.getElementsByClassName('card');
+            for(let i = 0; i < outputs.length; i++) {
+                if (outputs[i].getAttribute('id') === cardId){
+                    outputs[i].style.display = 'none';
+                } else {
+                    outputs[i].style.display = 'block';
+                }
+                
+            }
             
-            //show unit conversions div
-            document.getElementById('output').style.visibility = 'visible';
+        }
+        */
+        //  hideAndReset() - hide and reset form and output cards
+        //  
+        function hideAndReset(){
+            document.getElementById('output').style.visibility = 'hidden';
+            document.getElementById('myForm').reset();
+            setOutputValues(0,0,0,0);
+        }
+        /*
+                //check if the output divs are visible (is this not the first conversion)
+                // if so, reset forms
+                if (document.getElementById('output').style.visibility == 'visible'){
+                    document.getElementById('output').style.visibility = 'hidden';
+                    document.getElementById('myForm').reset();
+                    setOutputValues(0,0,0,0);
+                }
+        
+        */
+        /*  setPounds() function - sets input box, hides lbs output, 
+        *               sets input listener + output function
+        */
+        function setPounds() {
             
-            // define lbs as event target value
-            let lbs = e.target.value;
+            //set button to disabled while converting
+            //disableButton('lbsButton');
             
-            // define units based on lbs
-            let grams = lbs * 453.59237;
-            let kilograms = grams / 1000;
-            let ounces = lbs * 16;
+            hideAndReset();
+            
+            //set input box to pounds
+            document.getElementById('genericInput').setAttribute('placeholder', 'Enter pounds...');
+            
+            //hide pounds output and show the rest
+            //hideOutput('lbsCard');
+        
+            //add event listener for lbs
+            document.getElementById('genericInput').addEventListener('input', function(e){
+                
+                //show unit conversions div
+                document.getElementById('output').style.visibility = 'visible';
+
+                // define lbs as event target value
+                let lbs = e.target.value;
+
+                // define units based on lbs
+                let grams = lbs * 453.59237;
+                let kilograms = grams / 1000;
+                let ounces = lbs * 16;
+
+                // change innerHTML to respective units
+                setOutputValues(ounces, lbs, grams, kilograms);
+                
+                
+            });
+        }
+        
+        /*  setGrams() function - sets input box, hides grams output, 
+        *               sets input listener + output function
+        */
+        function setGrams(){
+            
+            //set button to disabled while converting
+            //disableButton('gramsButton');
+            
+            hideAndReset();
+            
+            //set input box to grams
+            document.getElementById('genericInput').setAttribute('placeholder', 'Enter grams...');
+            
+            //hide grams output and show the rest
+            //hideOutput('gramsCard');
+            
+            //add event listener for grams
+            document.getElementById('genericInput').addEventListener('input', function(e){
+
+                //show unit conversions div
+                document.getElementById('output').style.visibility = 'visible';
+
+                // define grams as event target value
+                let grams = e.target.value;
+
+                // define units based on grams
+                let lbs = grams / 453.59237;
+                let kilograms = grams / 1000;
+                let ounces = grams / 28.34952;
+
+                // change output cards' innerHTML to respective units
+                setOutputValues(ounces, lbs, grams, kilograms);
+                
+                
+            });
+        }
+        
+        
+        /*  setKilograms() function - sets input box, hides kilograms output, 
+        *                  sets input listener + output function
+        */
+        function setKilograms(){
+            
+            //set button to disabled while converting
+            //disableButton('kilogramsButton');
+            
+            hideAndReset();
+            
+            //set input box to kilograms
+            document.getElementById('genericInput').setAttribute('placeholder', 'Enter kilograms...');
+            
+            //hide kilograms output and show the rest
+            //hideOutput('kilogramsCard');
+            
+            
+            //add event listener for kilograms
+            document.getElementById('genericInput').addEventListener('input', function(e){
+        
+                //show unit conversions div
+                document.getElementById('output').style.visibility = 'visible';
+
+                // define kilograms as event target value
+                let kilograms = e.target.value;
+
+                // define units based on kgs
+                let grams = kilograms * 1000;
+                let lbs = kilograms / .45359237;
+                let ounces = kilograms / .02834952;
+
+                // change innerHTML to respective units
+                setOutputValues(ounces, lbs, grams, kilograms);
+            });
+        }
+        
+        
+        /*  setOunces() function - sets input box, hides ounces output, 
+        *               sets input listener + output function
+        */
+        function setOunces(){
+            
+            //set button to disabled while converting
+            //disableButton('ouncesButton');
+            
+            hideAndReset();
+            
+            //set input box to ounces
+            document.getElementById('genericInput').setAttribute('placeholder', 'Enter ounces...');
+            
+            //hide ounces output and show the rest
+            //hideOutput('ouncesCard');
+            
+            
+            //add event listener for ounces
+            document.getElementById('genericInput').addEventListener('input', function(e){
+        
+                //show unit conversions div
+                document.getElementById('output').style.visibility = 'visible';
+
+                // define ounces as event target value
+                let ounces = e.target.value;
+
+                // define units based on oz
+                let lbs = ounces / 16;
+                let grams = lbs * 453.59237;
+                let kilograms = grams / 1000;
+
+                setOutputValues(ounces, lbs, grams, kilograms);
+            });
+        }
+
+        function setOutputValues(ounces, lbs, grams, kilograms) {
             
             // change innerHTML to respective units
+            document.getElementById('ouncesOutput').innerHTML = ounces;
+            document.getElementById('lbsOutput').innerHTML = lbs;
             document.getElementById('gramsOutput').innerHTML = grams;
             document.getElementById('kilogramsOutput').innerHTML = kilograms;
-            document.getElementById('ouncesOutput').innerHTML = ounces;
-        });
+            
+        }
+        
+        
 
     </script>
 </body>
